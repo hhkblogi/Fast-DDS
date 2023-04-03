@@ -1559,3 +1559,235 @@ TEST(Discovery, ServerClientEnvironmentSetUp)
     ASSERT_TRUE(load_environment_server_info(text, output));
     ASSERT_EQ(output, standard);
 }
+<<<<<<< HEAD
+=======
+
+//! Tests the server-client setup using environment variable works fine using DNS
+TEST(Discovery, ServerClientEnvironmentSetUpDNS)
+{
+    using namespace std;
+    using namespace eprosima::fastdds::rtps;
+
+    RemoteServerList_t output, standard;
+    RemoteServerAttributes att;
+    Locator_t loc, loc6(LOCATOR_KIND_UDPv6, 0);
+
+    // 1. single server DNS address resolution without specific port provided
+    std::string text = "www.acme.com.test";
+
+    att.clear();
+    output.clear();
+    standard.clear();
+    IPLocator::setIPv6(loc6, "2a00:1450:400e:803::2004");
+    IPLocator::setPhysicalPort(loc6, DEFAULT_ROS2_SERVER_PORT);
+    att.metatrafficUnicastLocatorList.push_back(loc6);
+    IPLocator::setIPv4(loc, "216.58.215.164");
+    IPLocator::setPhysicalPort(loc, DEFAULT_ROS2_SERVER_PORT);
+    att.metatrafficUnicastLocatorList.push_back(loc);
+    get_server_client_default_guidPrefix(0, att.guidPrefix);
+    standard.push_back(att);
+
+    ASSERT_TRUE(load_environment_server_info(text, output));
+    ASSERT_EQ(output, standard);
+
+    // 2. single server DNS address specifying a custom listening port
+    text = "www.acme.com.test:14520";
+
+    att.clear();
+    output.clear();
+    standard.clear();
+    IPLocator::setIPv6(loc6, "2a00:1450:400e:803::2004");
+    IPLocator::setPhysicalPort(loc6, 14520);
+    att.metatrafficUnicastLocatorList.push_back(loc6);
+    IPLocator::setIPv4(loc, "216.58.215.164");
+    IPLocator::setPhysicalPort(loc, 14520);
+    att.metatrafficUnicastLocatorList.push_back(loc);
+    get_server_client_default_guidPrefix(0, att.guidPrefix);
+    standard.push_back(att);
+
+    ASSERT_TRUE(load_environment_server_info(text, output));
+    ASSERT_EQ(output, standard);
+
+    // 3. single server DNS address specifying a custom locator type
+    // UDPv4
+    text = "UDPv4:[www.acme.com.test]";
+
+    att.clear();
+    output.clear();
+    standard.clear();
+    IPLocator::setIPv4(loc, "216.58.215.164");
+    IPLocator::setPhysicalPort(loc, DEFAULT_ROS2_SERVER_PORT);
+    att.metatrafficUnicastLocatorList.push_back(loc);
+    get_server_client_default_guidPrefix(0, att.guidPrefix);
+    standard.push_back(att);
+
+    ASSERT_TRUE(load_environment_server_info(text, output));
+    ASSERT_EQ(output, standard);
+
+    // UDPv6
+    text = "UDPv6:[www.acme.com.test]";
+
+    att.clear();
+    output.clear();
+    standard.clear();
+    IPLocator::setIPv6(loc6, "2a00:1450:400e:803::2004");
+    IPLocator::setPhysicalPort(loc6, DEFAULT_ROS2_SERVER_PORT);
+    att.metatrafficUnicastLocatorList.push_back(loc6);
+    get_server_client_default_guidPrefix(0, att.guidPrefix);
+    standard.push_back(att);
+
+    ASSERT_TRUE(load_environment_server_info(text, output));
+    ASSERT_EQ(output, standard);
+
+    // 4. single server DNS address specifying a custom locator type and listening port
+    // UDPv4
+    text = "UDPv4:[www.acme.com.test]:14520";
+
+    att.clear();
+    output.clear();
+    standard.clear();
+    IPLocator::setIPv4(loc, "216.58.215.164");
+    IPLocator::setPhysicalPort(loc, 14520);
+    att.metatrafficUnicastLocatorList.push_back(loc);
+    get_server_client_default_guidPrefix(0, att.guidPrefix);
+    standard.push_back(att);
+
+    ASSERT_TRUE(load_environment_server_info(text, output));
+    ASSERT_EQ(output, standard);
+
+    // UDPv6
+    text = "UDPv6:[www.acme.com.test]:14520";
+
+    att.clear();
+    output.clear();
+    standard.clear();
+    IPLocator::setIPv6(loc6, "2a00:1450:400e:803::2004");
+    IPLocator::setPhysicalPort(loc6, 14520);
+    att.metatrafficUnicastLocatorList.push_back(loc6);
+    get_server_client_default_guidPrefix(0, att.guidPrefix);
+    standard.push_back(att);
+
+    ASSERT_TRUE(load_environment_server_info(text, output));
+    ASSERT_EQ(output, standard);
+
+    // Any other Locator kind should fail
+    text = "TCPv4:[www.acme.com.test]";
+
+    output.clear();
+    ASSERT_FALSE(load_environment_server_info(text, output));
+
+    // 5. Check mixed scenario with addresses and dns
+    text = "192.168.36.34:14520;UDPv6:[www.acme.com.test]:14520;172.30.80.1:31090;";
+
+    output.clear();
+    standard.clear();
+
+    att.clear();
+    IPLocator::setIPv4(loc, string("192.168.36.34"));
+    IPLocator::setPhysicalPort(loc, 14520);
+    att.metatrafficUnicastLocatorList.push_back(loc);
+    get_server_client_default_guidPrefix(0, att.guidPrefix);
+    standard.push_back(att);
+
+    att.clear();
+    IPLocator::setIPv6(loc6, "2a00:1450:400e:803::2004");
+    IPLocator::setPhysicalPort(loc6, 14520);
+    att.metatrafficUnicastLocatorList.push_back(loc6);
+    get_server_client_default_guidPrefix(1, att.guidPrefix);
+    standard.push_back(att);
+
+    att.clear();
+    IPLocator::setIPv4(loc, string("172.30.80.1"));
+    IPLocator::setPhysicalPort(loc, 31090);
+    att.metatrafficUnicastLocatorList.push_back(loc);
+    get_server_client_default_guidPrefix(2, att.guidPrefix);
+    standard.push_back(att);
+
+    ASSERT_TRUE(load_environment_server_info(text, output));
+    ASSERT_EQ(output, standard);
+}
+
+TEST(Discovery, RemoteBuiltinEndpointHonoring)
+{
+
+    PubSubReader<HelloWorldPubSubType> reader(TEST_TOPIC_NAME);
+    PubSubWriter<HelloWorldPubSubType> writer(TEST_TOPIC_NAME);
+
+    auto reader_test_transport = std::make_shared<test_UDPv4TransportDescriptor>();
+    auto writer_test_transport = std::make_shared<test_UDPv4TransportDescriptor>();
+
+    uint32_t num_reader_heartbeat = 0;
+    uint32_t num_reader_acknack = 0;
+
+    reader_test_transport->drop_heartbeat_messages_filter_ = [&num_reader_heartbeat](CDRMessage_t&)
+            {
+                num_reader_heartbeat++;
+                return false;
+            };
+
+    reader_test_transport->drop_ack_nack_messages_filter_ = [&num_reader_acknack](CDRMessage_t&)
+            {
+                num_reader_acknack++;
+                return false;
+            };
+
+    uint32_t num_writer_heartbeat = 0;
+    uint32_t num_writer_acknack = 0;
+
+    writer_test_transport->drop_heartbeat_messages_filter_ = [&num_writer_heartbeat](CDRMessage_t&)
+            {
+                num_writer_heartbeat++;
+                return false;
+            };
+
+    writer_test_transport->drop_ack_nack_messages_filter_ = [&num_writer_acknack](CDRMessage_t&)
+            {
+                num_writer_acknack++;
+                return false;
+            };
+
+    reader.disable_builtin_transport().add_user_transport_to_pparams(reader_test_transport).
+            use_writer_liveliness_protocol(false);
+    writer.disable_builtin_transport().add_user_transport_to_pparams(writer_test_transport);
+
+    reader.init();
+    writer.init();
+
+    ASSERT_TRUE(reader.isInitialized());
+    ASSERT_TRUE(writer.isInitialized());
+
+    // Wait for discovery.
+    writer.wait_discovery(std::chrono::seconds(3));
+    reader.wait_discovery(std::chrono::seconds(3));
+
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
+    ASSERT_EQ(num_reader_heartbeat, 3u);
+    ASSERT_EQ(num_reader_acknack, 3u);
+    ASSERT_EQ(num_writer_heartbeat, 3u);
+    ASSERT_EQ(num_writer_acknack, 3u);
+}
+
+//! Regression test for redmine issue 10674
+TEST(Discovery, MulticastInitialPeer)
+{
+    PubSubReader<HelloWorldPubSubType> reader(TEST_TOPIC_NAME);
+    PubSubWriter<HelloWorldPubSubType> writer(TEST_TOPIC_NAME);
+
+    eprosima::fastdds::rtps::LocatorList peers;
+    eprosima::fastdds::rtps::Locator loc{};
+    loc.kind = LOCATOR_KIND_UDPv4;
+    IPLocator::setIPv4(loc, "239.255.0.1");
+    peers.push_back(loc);
+
+    reader.participant_id(100).initial_peers(peers).init();
+    ASSERT_TRUE(reader.isInitialized());
+
+    writer.participant_id(101).initial_peers(peers).init();
+    ASSERT_TRUE(writer.isInitialized());
+
+    // Wait for discovery (times out before the fix).
+    writer.wait_discovery();
+    reader.wait_discovery();
+}
+>>>>>>> 49baf5154 (Correctly assign multicast port to multicast initial peers (#3425))
