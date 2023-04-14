@@ -777,7 +777,12 @@ bool DataWriterImpl::deadline_missed()
     deadline_missed_status_.last_instance_handle = timer_owner_;
     if (listener_ != nullptr)
     {
+<<<<<<< HEAD
         listener_->on_offered_deadline_missed(user_datawriter_, deadline_missed_status_);
+=======
+        listener->on_offered_deadline_missed(user_datawriter_, deadline_missed_status_);
+        deadline_missed_status_.total_count_change = 0;
+>>>>>>> 40411d968 (Select correct listener for on_requested_deadline_missed (#3423))
     }
     publisher_->publisher_listener_.on_offered_deadline_missed(user_datawriter_, deadline_missed_status_);
     deadline_missed_status_.total_count_change = 0;
